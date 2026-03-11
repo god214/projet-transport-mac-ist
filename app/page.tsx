@@ -39,6 +39,31 @@ const lignes = {
     'PK10',
     'PK11',
     'PK12'
+  ],
+  ligne3: [
+    'Ntoum',
+    'Poste de contrôle de la gendarmerie',
+    'Nzobéré',
+    'Ancien motel',
+    'Les eaux et forêts',
+    'Les 2 lions',
+    'Le lac',
+    'Le bar bleu',
+    'Le château',
+    'Nkolassi',
+    'Nkoltang',
+    'Florentine',
+    'Pk27',
+    'Poste de contrôle d\'essassa',
+    'Monastère',
+    'Thégué thégué',
+    'Berthe et jean',
+    'Sortie d\'Olam',
+    'Garage',
+    'Pk14',
+    'Entré ou sortie bikélé',
+    'Pk13',
+    'Pk12'
   ]
 };
 
@@ -51,7 +76,7 @@ export default function Home() {
   });
   const [message, setMessage] = useState('');
   const [type, setType] = useState<'success' | 'danger'>('success');
-  const [ligneSelectionnee, setLigneSelectionnee] = useState<'ligne1' | 'ligne2' | null>(null);
+  const [ligneSelectionnee, setLigneSelectionnee] = useState<'ligne1' | 'ligne2' | 'ligne3' | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,34 +203,61 @@ export default function Home() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Votre ligne de transport <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <button
-                  type="button"
-                  onClick={() => setLigneSelectionnee('ligne1')}
-                  className={`py-3 px-4 rounded-lg font-medium transition-all duration-200 border ${
-                    ligneSelectionnee === 'ligne1'
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                      : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
-                  }`}
-                >
-                  Ligne 1
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLigneSelectionnee('ligne2')}
-                  className={`py-3 px-4 rounded-lg font-medium transition-all duration-200 border ${
-                    ligneSelectionnee === 'ligne2'
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                      : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
-                  }`}
-                >
-                  Ligne 2
-                </button>
+              <div className="grid grid-cols-3 gap-4 mb-3">
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setLigneSelectionnee('ligne1')}
+                    className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 border ${
+                      ligneSelectionnee === 'ligne1'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                        : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                    }`}
+                  >
+                    Ligne 1
+                  </button>
+                  <span className="text-xs text-gray-600">Charbonnage-Bikélé</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setLigneSelectionnee('ligne2')}
+                    className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 border ${
+                      ligneSelectionnee === 'ligne2'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                        : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                    }`}
+                  >
+                    Ligne 2
+                  </button>
+                  <span className="text-xs text-gray-600">Carrefour SNI-Bikélé</span>
+                </div>
+
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setLigneSelectionnee('ligne3')}
+                    className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 border ${
+                      ligneSelectionnee === 'ligne3'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                        : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+                    }`}
+                  >
+                    Ligne 3
+                  </button>
+                  <span className="text-xs text-gray-600">Ntoum-Bikélé</span>
+                </div>
               </div>
 
               {ligneSelectionnee && (
-                <p className="text-sm text-gray-600 mt-1">
-                  {ligneSelectionnee === 'ligne1' ? 'Ligne 1' : 'Ligne 2'} sélectionnée
+                <p className="text-sm text-gray-600 mt-1 text-center">
+                  {ligneSelectionnee === 'ligne1'
+                    ? 'Ligne 1 : Charbonnage-Bikélé'
+                    : ligneSelectionnee === 'ligne2'
+                      ? 'Ligne 2 : Carrefour SNI-Bikélé'
+                      : 'Ligne 3 : Ntoum-Bikélé'}{' '}
+                  sélectionnée
                 </p>
               )}
             </div>
