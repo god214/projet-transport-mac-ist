@@ -77,34 +77,68 @@ export default function Home() {
   const [message, setMessage] = useState('');
   const [type, setType] = useState<'success' | 'danger'>('success');
   const [ligneSelectionnee, setLigneSelectionnee] = useState<'ligne1' | 'ligne2' | 'ligne3' | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
+    setIsSubmitting(true);
 
     const nomTrim = form.nom.trim();
     const prenomTrim = form.prenom.trim();
     const telephoneTrim = form.telephone.trim();
     const quartierTrim = form.quartier.trim();
 
-    if (!nomTrim || !prenomTrim || !quartierTrim) {
-      setMessage('Nom, prénom et quartier sont obligatoires.');
+    if (!nomTrim || !prenomTrim || !telephoneTrim || !quartierTrim) {
+      setMessage('Tous les champs sont obligatoires (nom, prénom, téléphone, quartier).');
       setType('danger');
+      setIsSubmitting(false);
       return;
     }
 
+    // Vérification anti-doublon (nom + prénom + téléphone + quartier)
+    let query = supabase
+      .from('etudiant')
+      .select('id')
+      .eq('nom', nomTrim)
+      .eq('prenom', prenomTrim)
+      .eq('numero_telephone', telephoneTrim)
+      .eq('quartier', quartierTrim);
+
+    const { data: existing, error: checkError } = await query.maybeSingle();
+
+    if (checkError) {
+      console.error('Erreur lors de la vérification :', checkError);
+      setMessage('Erreur lors de la vérification de ton inscription.');
+      setType('danger');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (existing) {
+      setMessage('Tu t’es déjà inscrit avec ces informations (nom, prénom, téléphone, quartier).');
+      setType('danger');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Insertion
     const { error } = await supabase
       .from('etudiant')
       .insert([{
         nom: nomTrim,
         prenom: prenomTrim,
-        numero_telephone: telephoneTrim || null,
+        numero_telephone: telephoneTrim,
         quartier: quartierTrim
       }]);
 
     if (error) {
       console.error('Erreur Supabase lors de l\'inscription :', error);
-      setMessage('Erreur lors de l\'inscription : ' + error.message);
+      if (error.code === '23505') {
+        setMessage('Cette combinaison existe déjà dans la base.');
+      } else {
+        setMessage('Erreur lors de l\'inscription : ' + error.message);
+      }
       setType('danger');
     } else {
       setMessage(`Inscription réussie ! Bienvenue ${prenomTrim} ${nomTrim} 🎉`);
@@ -112,6 +146,8 @@ export default function Home() {
       setForm({ nom: '', prenom: '', telephone: '', quartier: '' });
       setLigneSelectionnee(null);
     }
+
+    setIsSubmitting(false);
   };
 
   const quartiers = ligneSelectionnee ? lignes[ligneSelectionnee] : [];
@@ -184,13 +220,14 @@ export default function Home() {
               />
             </div>
 
-            {/* Téléphone */}
+            {/* Téléphone - maintenant obligatoire */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Numéro de téléphone
+                Numéro de téléphone <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
+                required
                 value={form.telephone}
                 onChange={(e) => setForm({ ...form, telephone: e.target.value })}
                 placeholder="Ex: 0777123456"
@@ -287,9 +324,12 @@ export default function Home() {
             {/* Bouton Soumettre */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg text-lg transition duration-200 shadow-md mt-8"
+              disabled={isSubmitting}
+              className={`w-full bg-blue-600 text-white font-bold py-4 rounded-lg text-lg transition duration-200 shadow-md mt-8 ${
+                isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'
+              }`}
             >
-              S'inscrire au projet transport
+              {isSubmitting ? 'Vérification en cours...' : "S'inscrire au projet transport"}
             </button>
           </form>
 
